@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Home - Social Media</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --ink: #09070e;
+            --panel: #12101b;
+            --panel-soft: #181522;
+            --line: rgba(255,255,255,.09);
+            --text: #f5f2ff;
+            --muted: #9690a8;
+            --violet: #a855f7;
+            --electric: #d946ef;
+            --lime: #b7ff3c;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background: var(--ink);
+            font-family: 'Space Grotesk', sans-serif;
+            background-image: radial-gradient(circle at 75% 5%, rgba(168,85,247,.18), transparent 28rem), radial-gradient(circle at 8% 70%, rgba(217,70,239,.08), transparent 24rem);
+            animation: page-glow 1.2s ease-out both;
+        }
+
+        @keyframes page-glow { from { opacity: 0; } to { opacity: 1; } }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(9,7,14,.88);
+            border-bottom: 1px solid var(--line);
+            padding: 16px max(24px, calc((100% - 1160px) / 2));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(18px);
+        }
+
+        .navbar h2 {
+            color: var(--text);
+            font-size: 22px;
+            letter-spacing: -1px;
+        }
+
+        .navbar h2::before { content: '◈'; color: var(--electric); margin-right: 8px; }
+
+        .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+        .create-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border: 1px solid rgba(168,85,247,.65);
+            background: rgba(168,85,247,.12);
+            color: var(--text);
+            box-shadow: none;
+        }
+
+        .create-trigger strong { color: var(--lime); font-size: 18px; line-height: 12px; }
+        .create-trigger kbd { color: var(--muted); font: 10px 'DM Mono', monospace; }
+
+        .navbar a {
+            color: var(--muted);
+            text-decoration: none;
+            border: 1px solid var(--line);
+            padding: 8px 13px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        .navbar a:hover { color: var(--text); border-color: var(--violet); }
+
+        .page-shell {
+            width: 680px;
+            max-width: calc(100% - 48px);
+            margin: 34px auto 70px;
+        }
+
+        .container {
+            width: auto;
+            max-width: none;
+            margin: 0;
+        }
+
+        .welcome, .composer, .post, .no-posts, .side-card {
+            background: rgba(18,16,27,.82);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            box-shadow: 0 18px 50px rgba(0,0,0,.2);
+        }
+
+        .welcome {
+            position: relative;
+            overflow: hidden;
+            padding: 27px;
+            margin-bottom: 18px;
+            background: linear-gradient(120deg, rgba(168,85,247,.18), rgba(18,16,27,.92) 63%);
+        }
+
+        .welcome h1 {
+            position: relative;
+            font-size: 30px;
+            letter-spacing: -1.5px;
+        }
+
+        .welcome p {
+            position: relative;
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .welcome::after { content: ''; position: absolute; width: 180px; height: 180px; border: 1px solid rgba(217,70,239,.5); border-radius: 50%; right: -70px; top: -90px; box-shadow: 0 0 50px rgba(217,70,239,.3); }
+
+        .composer {
+            padding: 18px;
+            margin-bottom: 22px;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: none;
+            place-items: center;
+            padding: 20px;
+            background: rgba(0,0,0,.72);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-backdrop.open { display: grid; }
+
+        .modal-card { position: relative; width: 470px; max-width: 100%; animation: modal-in .22s ease-out; }
+        .modal-card .composer { margin: 0; }
+        .modal-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .modal-title h2 { margin: 0; }
+        .modal-close { padding: 3px 8px; background: transparent; color: var(--muted); box-shadow: none; font-size: 20px; }
+        .modal-close:hover { color: var(--electric); background: transparent; box-shadow: none; }
+
+        @keyframes modal-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .composer h2 {
+            color: var(--text);
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .field, .comment-input {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            padding: 12px;
+            background: #0c0a12;
+            color: var(--text);
+            font: 13px 'Space Grotesk', sans-serif;
+        }
+
+        .field + .field { margin-top: 10px; }
+
+        .field:focus, .comment-input:focus { outline: 1px solid var(--violet); border-color: var(--violet); }
+
+        .composer-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 3px;
+            padding: 10px 17px;
+            background: var(--violet);
+            color: #fff;
+            cursor: pointer;
+            font: 600 12px 'Space Grotesk', sans-serif;
+            box-shadow: 0 0 18px rgba(168,85,247,.32);
+        }
+
+        button:hover { background: var(--electric); box-shadow: 0 0 24px rgba(217,70,239,.45); }
+
+        .stories { display: flex; gap: 14px; overflow: hidden; padding: 4px 2px 22px; }
+        .story { min-width: 58px; text-align: center; color: var(--muted); font-size: 10px; }
+        .story-ring { display: grid; place-items: center; width: 55px; height: 55px; margin: auto auto 6px; border: 2px solid var(--electric); border-radius: 50%; background: var(--panel-soft); color: var(--lime); font-size: 18px; box-shadow: 0 0 13px rgba(217,70,239,.45); }
+        .story-ring img, .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .story-ring img { border: 2px solid var(--panel-soft); }
+        .story:hover .story-ring { animation: story-pulse .8s ease-in-out infinite alternate; }
+        @keyframes story-pulse { to { transform: translateY(-4px); box-shadow: 0 0 25px rgba(217,70,239,.75); } }
+
+        .post {
+            overflow: hidden;
+            margin-bottom: 16px;
+            animation: post-rise .55s cubic-bezier(.2,.75,.25,1) both;
+        }
+
+        .post:nth-of-type(2) { animation-delay: .08s; }
+        .post:nth-of-type(3) { animation-delay: .16s; }
+        .post:nth-of-type(4) { animation-delay: .24s; }
+        @keyframes post-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        .post-head, .post-body, .post-footer, .comments {
+            padding: 17px 19px;
+        }
+
+        .post-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 12px;
+        }
+
+        .avatar {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--violet), var(--electric));
+            color: white;
+            font: bold 17px Arial, sans-serif;
+        }
+
+        .post h3 { color: var(--text); font-size: 16px; }
+
+        .handle, .date {
+            color: var(--muted);
+            font: 11px 'DM Mono', monospace;
+            margin-top: 3px;
+        }
+
+        .post-body { padding-top: 0; }
+
+        .post-body { position: relative; }
+
+        .post-caption {
+            color: #e6e0ef;
+            font-size: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .post-image {
+            display: block;
+            width: 100%;
+            max-height: 430px;
+            object-fit: cover;
+            margin-top: 15px;
+            border-radius: 5px;
+            background: #201930;
+        }
+
+        .heart-like { position: absolute; right: 30px; bottom: 30px; }
+        .heart-button {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 54px;
+            justify-content: center;
+            padding: 9px 11px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 999px;
+            background: rgba(9,7,14,.75);
+            color: #fff;
+            box-shadow: 0 5px 18px rgba(0,0,0,.4);
+            backdrop-filter: blur(8px);
+        }
+
+        .heart-icon { color: #fff; font-size: 23px; line-height: 1; transition: transform .2s ease, color .2s ease; }
+        .heart-count { color: #fff; font: 11px 'DM Mono', monospace; }
+        .heart-button:hover { border-color: var(--electric); background: rgba(217,70,239,.22); }
+        .heart-button:hover .heart-icon { color: var(--electric); transform: scale(1.18); }
+        .heart-button.heart-pop .heart-icon { animation: heart-pop .45s ease-out; }
+        @keyframes heart-pop { 45% { transform: scale(1.5); color: var(--electric); } 100% { transform: scale(1); } }
+
+        .post-footer {
+            display: flex;
+            gap: 22px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        .action-form { display: inline; }
+
+        .action-button {
+            padding: 0;
+            background: transparent;
+            color: var(--muted);
+            font-weight: normal;
+        }
+
+        .action-button:hover, .liked { color: var(--electric); }
+
+        .comments { padding-top: 14px; }
+
+        .comment { margin-bottom: 10px; color: #c9c1d5; font: 13px/1.4 'Space Grotesk', sans-serif; }
+        .comment strong { color: var(--electric); }
+        .comment-form { display: flex; gap: 8px; margin-top: 12px; }
+        .comment-input { padding: 9px 11px; }
+        .comment-form button { padding: 8px 12px; }
+
+        .no-posts { padding: 30px; text-align: center; }
+        .no-posts h3 { color: var(--text); }
+        .no-posts p { margin-top: 8px; color: var(--muted); }
+
+        .side-card { padding: 17px; margin-bottom: 16px; }
+        .profile-line { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .profile-line .avatar { width: 40px; height: 40px; font-size: 15px; }
+        .profile-line strong { display: block; font-size: 13px; }
+        .profile-line small { color: var(--muted); font: 11px 'DM Mono', monospace; }
+        .side-card p { color: var(--muted); font-size: 12px; line-height: 1.55; }
+        .trend { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); color: #ddd5e8; font-size: 12px; }
+        .trend:last-child { border-bottom: 0; }
+        .trend span { color: var(--muted); font: 10px 'DM Mono', monospace; }
+
+        .section-label { color: var(--muted); font: 11px 'DM Mono', monospace; letter-spacing: 1px; margin: 4px 2px 9px; text-transform: uppercase; }
+
+        @media (max-width: 520px) {
+            .navbar { padding: 15px 16px; }
+            .navbar h2 { font-size: 20px; }
+            .create-trigger kbd { display: none; }
+            .create-trigger { padding: 8px 10px; }
+            .welcome h1 { font-size: 25px; }
+            .comment-form { align-items: stretch; flex-direction: column; }
+            .page-shell { max-width: calc(100% - 24px); margin-top: 20px; }
+            .post-head, .post-body, .post-footer, .comments { padding-left: 14px; padding-right: 14px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <h2>Connect Z</h2>
+
+        <div class="nav-actions">
+            <button class="create-trigger" type="button" aria-label="Create a post" title="Create a post"><strong>＋</strong> Create <kbd>N</kbd></button>
+            <a href="/logout">Logout</a>
+        </div>
+
+    </div>
+
+    <div class="modal-backdrop" id="post-modal" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="create-post-title">
+            <form class="composer" action="/create_post" method="POST" enctype="multipart/form-data">
+                <div class="modal-title"><h2 id="create-post-title">Create a post</h2><button class="modal-close" type="button" aria-label="Close create post">×</button></div>
+                <label class="upload-field"><span>＋ Add photo</span><input class="field" type="file" name="image" accept="image/png,image/jpeg,image/gif,image/webp" required></label>
+                <textarea class="field" name="caption" rows="3" required placeholder="Write a caption..."></textarea>
+                <div class="composer-actions"><button type="submit">Publish post</button></div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="page-shell">
+
+    <main class="container">
+
+        <div class="section-label">Live circles · today</div>
+        <div class="stories">
+            <div class="story"><div class="story-ring">＋</div><span>Your story</span></div>
+            <div class="story"><div class="story-ring"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&h=160&fit=crop&crop=faces" alt="Priya"></div><span>priya</span></div>
+            <div class="story"><div class="story-ring"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&h=160&fit=crop&crop=faces" alt="Rahul"></div><span>rahul</span></div>
+            <div class="story"><div class="story-ring"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=160&h=160&fit=crop&crop=faces" alt="Anu"></div><span>anu</span></div>
+            <div class="story"><div class="story-ring">✦</div><span>explore</span></div>
+        </div>
+
+        {% if posts %}
+
+            {% for post in posts %}
+
+                <div class="post" data-content="{{ post['content']|e }}">
+                    <div class="post-head">
+                        <div class="avatar">{% if post['profile_image'] %}<img src="{{ post['profile_image'] }}" alt="{{ post['fullname'] }}">{% else %}{{ post["fullname"][0]|upper }}{% endif %}</div>
+                        <div><h3>{{ post["fullname"] }}</h3><div class="handle">@{{ post["username"] }} · <span class="date">{{ post["created_at"] }}</span></div></div>
+                    </div>
+                    <div class="post-body"><p class="post-caption"></p><img class="post-image" alt="Post image" hidden><form class="heart-like" action="/like/{{ post['id'] }}" method="POST"><button class="heart-button{% if post['liked_by_user'] %} liked{% endif %}" type="submit" aria-label="Like this post" title="Like this post"><span class="heart-icon">{% if post['liked_by_user'] %}♥{% else %}♡{% endif %}</span><span class="heart-count">{{ post['like_count'] }}</span></button></form></div>
+                    <div class="post-footer">
+                        <span class="action-button">▱ Comments <span>{{ post['comment_count'] }}</span></span>
+                    </div>
+                    <div class="comments">
+                        <div class="comment-list">
+                            {% for comment in comments_by_post[post['id']] %}
+                                <div class="comment"><strong>@{{ comment['username'] }}</strong> {{ comment['comment'] }}</div>
+                            {% endfor %}
+                        </div>
+                        <form class="comment-form" action="/comment/{{ post['id'] }}" method="POST"><input class="comment-input" name="comment" required placeholder="Write a comment..."><button type="submit">Comment</button></form>
+                    </div>
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="no-posts">
+
+                <h3>No posts yet</h3>
+
+                <p>Be the first person to create a post!</p>
+
+            </div>
+
+        {% endif %}
+
+    </main>
+    </div>
+
+    <script>
+        var postModal = document.querySelector('#post-modal');
+        var createTrigger = document.querySelector('.create-trigger');
+        var closeModal = document.querySelector('.modal-close');
+
+        function openPostModal() {
+            postModal.classList.add('open');
+            postModal.setAttribute('aria-hidden', 'false');
+            postModal.querySelector('[name="image"]').focus();
+        }
+
+        function closePostModal() {
+            postModal.classList.remove('open');
+            postModal.setAttribute('aria-hidden', 'true');
+        }
+
+        createTrigger.addEventListener('click', openPostModal);
+        closeModal.addEventListener('click', closePostModal);
+        postModal.addEventListener('click', function (event) {
+            if (event.target === postModal) closePostModal();
+        });
+        document.addEventListener('keydown', function (event) {
+            var tagName = document.activeElement.tagName.toLowerCase();
+            if (event.key.toLowerCase() === 'n' && tagName !== 'input' && tagName !== 'textarea') openPostModal();
+            if (event.key === 'Escape') closePostModal();
+        });
+
+        document.querySelectorAll('.post').forEach(function (post) {
+            var raw = post.dataset.content || '';
+            var match = raw.match(/^\[image:(https?:\/\/[^\s\]]+|\/static\/uploads\/[^\s\]]+)\]\s*/i);
+            var caption = match ? raw.slice(match[0].length) : raw;
+            var image = post.querySelector('.post-image');
+            post.querySelector('.post-caption').textContent = caption;
+            if (match) {
+                image.src = match[1];
+                image.hidden = false;
+                image.onerror = function () { image.hidden = true; };
+                image.addEventListener('dblclick', function () {
+                    var heartButton = post.querySelector('.heart-button');
+                    heartButton.classList.add('heart-pop');
+                    post.querySelector('.heart-like').submit();
+                });
+            }
+        });
+
+        document.querySelector('.composer').addEventListener('submit', function (event) {
+            event.preventDefault();
+            fetch(this.action, { method: 'POST', body: new FormData(this) })
+                .then(function () { window.location.href = '/home'; });
+        });
+    </script>
+
+</body>
+</html>
