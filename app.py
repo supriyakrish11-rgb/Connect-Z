@@ -275,6 +275,9 @@ def logout():
 
     return redirect("/login")
 
+@app.route("/test")
+def test():
+    return "Test route is working!"
 
 # ==========================
 # RUN APPLICATION
